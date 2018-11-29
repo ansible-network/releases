@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The configuration file format:
+"""
+[twitter]
+consumer_key=consumer_key
+consumer_secret=consumer_secret
+access_token_key=access_token_key
+access_token_secret=access_token_secret
+"""
+
+import argparse
+import configparser
+import os
+
+import twitter
+
+
+class Tweet():
+    def __init__(self, config):
+        self.consumer_key = config.get('twitter', 'consumer_key')
+        self.consumer_secret = config.get('twitter', 'consumer_secret')
+        self.access_token_key = config.get('twitter', 'access_token_key')
+        self.access_token_secret = config.get('twitter', 'access_token_secret')
+        self.api = twitter.Api(
+            consumer_key=self.consumer_key,
+            consumer_secret=self.consumer_secret,
+            access_token_key=self.access_token_key,
+            access_token_secret=self.access_token_secret)
+
+    def send(self, msg):
+        self.api.PostUpdates(msg, continuation=u'\u2026')
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Twitter bot')
+    parser.add_argument(
+        'message', type=str, help="What's happening?")
+    args = parser.parse_args()
+    config = configparser.ConfigParser()
+    config.read(os.path.expanduser('~/.tweetrc'))
+
+    tweet = Tweet(config)
+    tweet.send(args.message)
+
+
+if __name__ == '__main__':
+    main()
