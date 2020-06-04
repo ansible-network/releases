@@ -31,6 +31,7 @@ def generate_version_info():
 
     with open('galaxy.yml', 'w') as fp:
         yaml.dump(config, fp)
+    print(f"{config['namespace']}-{config['name']}-{config['version']}.tar.gz")
 
 
 def main():
