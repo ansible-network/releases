@@ -18,7 +18,4 @@ set -e
 ARTIFACT=$1
 
 # galaxy_importer.main does not return non-zero error code on error
-output=$(python -m galaxy_importer.main $ARTIFACT)
-if echo $output | grep ERROR: ; then
-    exit 1
-fi
+python -m galaxy_importer.main $ARTIFACT
