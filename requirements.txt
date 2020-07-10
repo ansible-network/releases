@@ -1,5 +1,5 @@
 ansible
-galaxy-importer
+galaxy-importer!=0.2.6
 ruamel.yaml
 pbr
 python-twitter
