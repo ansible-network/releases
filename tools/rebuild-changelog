@@ -1,0 +1,11 @@
+#!/bin/bash
+# Regenerate the changelog files
+rm -f rm CHANGELOG.rst changelogs/changelog.yaml changelogs/.plugin-cache.yaml
+for tag in $(git tag); do
+    rm -f changelogs/fragments/*
+    git checkout ${tag} -- changelogs/fragments
+    date=$(git log ${tag} -1 --pretty=tformat:%as)
+    antsibull-changelog release --verbose --version ${tag} --date ${date}
+done
+git clean -fdx
+git reset --hard
