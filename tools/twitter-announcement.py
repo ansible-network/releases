@@ -29,6 +29,21 @@ import os
 import tweepy
 
 
+def split_message(message):
+    """Split a message into 280-character chunks for splitting across tweets.
+    """
+
+    words = message.split()
+    line = ""
+    for word in words:
+        if len(line + word) > 278:
+            yield line + "\u2026"
+            line = word
+        else:
+            line += f" {word}"
+    yield line
+
+
 class Tweet():
     def __init__(self, config):
         self.consumer_key = config.get('twitter', 'consumer_key')
@@ -38,10 +53,23 @@ class Tweet():
 
         auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
         auth.set_access_token(self.access_token_key, self.access_token_secret)
-        self.api = tweepy.Api(auth)
+        self.api = tweepy.API(auth)
 
     def send(self, msg):
-        self.api.update_status(status=msg)
+        if len(msg) > 280:
+            last = None
+            for line in split_message(msg):
+                if last is not None:
+                    last = self.api.update_status(
+                        status=line,
+                        in_reply_to_status_id=last.id,
+                        auto_populate_reply_metadata=True,
+                    )
+                else:
+                    last = self.api.update_status(status=line)
+
+        else:
+            self.api.update_status(status=msg)
 
 
 def main():
