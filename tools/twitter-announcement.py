@@ -26,7 +26,7 @@ import argparse
 import configparser
 import os
 
-import twitter
+import tweepy
 
 
 class Tweet():
@@ -35,14 +35,13 @@ class Tweet():
         self.consumer_secret = config.get('twitter', 'consumer_secret')
         self.access_token_key = config.get('twitter', 'access_token_key')
         self.access_token_secret = config.get('twitter', 'access_token_secret')
-        self.api = twitter.Api(
-            consumer_key=self.consumer_key,
-            consumer_secret=self.consumer_secret,
-            access_token_key=self.access_token_key,
-            access_token_secret=self.access_token_secret)
+
+        auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
+        auth.set_access_token(self.access_token_key, self.access_token_secret)
+        self.api = tweepy.Api(auth)
 
     def send(self, msg):
-        self.api.PostUpdates(msg, continuation=u'\u2026')
+        self.api.update_status(status=msg)
 
 
 def main():
