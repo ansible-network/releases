@@ -19,6 +19,7 @@ ARTIFACT=$1
 
 # galaxy_importer.main does not return non-zero error code on error
 output=$(python -m galaxy_importer.main $ARTIFACT)
-if echo $output | grep ERROR: ; then
+echo "${output}"
+if echo $output | grep ERROR: > /dev/null ;  then
     exit 1
 fi
