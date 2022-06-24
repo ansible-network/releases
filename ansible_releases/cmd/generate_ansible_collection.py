@@ -20,13 +20,22 @@ from ruamel.yaml import YAML
 def generate_version_info():
     version_info = pbr.version.VersionInfo('random')
     semantic_version = version_info.semantic_version()
-    release_string = semantic_version._long_version('-')
 
     yaml = YAML()
     yaml.explicit_start = True
     yaml.indent(sequence=4, offset=2)
 
     config = yaml.load(open('galaxy.yml'))
+
+    try:
+        galaxy_version = str(config['version']).replace("-", ".")
+        galaxy_version = pbr.version.SemanticVersion.from_pip_string(
+            galaxy_version)
+    except (ValueError, TypeError):
+        galaxy_version = semantic_version
+
+    release_version = max(galaxy_version, semantic_version)
+    release_string = release_version._long_version('-')
     config['version'] = release_string
 
     with open('galaxy.yml', 'w') as fp:
