@@ -28,7 +28,7 @@ def generate_version_info():
     config = yaml.load(open('galaxy.yml'))
 
     try:
-        galaxy_version = str(config['version']).replace("-", ".")
+        galaxy_version = str(config.get('version')).replace("-", ".")
         galaxy_version = pbr.version.SemanticVersion.from_pip_string(
             galaxy_version)
     except (ValueError, TypeError):
