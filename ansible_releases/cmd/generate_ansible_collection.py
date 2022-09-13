@@ -12,6 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import sys
+
 import pbr.version
 
 from ruamel.yaml import YAML
@@ -33,6 +35,12 @@ def generate_version_info():
             galaxy_version)
     except (ValueError, TypeError):
         galaxy_version = semantic_version
+
+    if '--for-release' in sys.argv and galaxy_version != semantic_version:
+        print(
+            f'ERROR: galaxy.yml version {galaxy_version} does not coincide'
+            f' with git version {semantic_version}!')
+        sys.exit(1)
 
     release_version = max(galaxy_version, semantic_version)
     release_string = release_version._long_version('-')
