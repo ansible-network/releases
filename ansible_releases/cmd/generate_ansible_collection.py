@@ -28,13 +28,12 @@ def generate_version_info():
     yaml.indent(sequence=4, offset=2)
 
     config = yaml.load(open('galaxy.yml'))
-
+    galaxy_version = None
     try:
-        galaxy_version = str(config.get('version')).replace("-", ".")
         galaxy_version = pbr.version.SemanticVersion.from_pip_string(
-            galaxy_version)
+            str(config.get('version')))
     except (ValueError, TypeError):
-        galaxy_version = semantic_version
+        pass
 
     if '--for-release' in sys.argv and galaxy_version != semantic_version:
         print(
@@ -42,12 +41,11 @@ def generate_version_info():
             f' with git version {semantic_version}!')
         sys.exit(1)
 
-    release_version = max(galaxy_version, semantic_version)
-    release_string = release_version._long_version('-')
-    config['version'] = release_string
+    if not galaxy_version:  # Set a version on the Fly
+        config['version'] = semantic_version.brief_string()
+        with open('galaxy.yml', 'w') as fp:
+            yaml.dump(config, fp)
 
-    with open('galaxy.yml', 'w') as fp:
-        yaml.dump(config, fp)
     print(f"{config['namespace']}-{config['name']}-{config['version']}.tar.gz")
 
 
